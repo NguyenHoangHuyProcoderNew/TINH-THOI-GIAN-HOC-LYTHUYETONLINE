@@ -1,0 +1,21 @@
+{
+    "manifest_version": 3,
+    "name": "Lấy dữ liệu để tính thời gian hoàn thành Lý Thuyết Online",
+    "version": "2.0",
+    "description": "Xuất dữ liệu tiến độ học tập LMS - Tự động lấy số giờ từ từng môn học",
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "storage",
+        "clipboardWrite"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_popup": "popup.html"
+    }
+}
