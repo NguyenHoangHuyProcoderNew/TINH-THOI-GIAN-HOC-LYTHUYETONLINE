@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 280px;
+            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        h3 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+        }
+
+        #status {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.5;
+            min-height: 40px;
+        }
+
+        .note {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #888;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+
+        #savedDataSection {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .saved-info {
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
+            margin-bottom: 8px;
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%) !important;
+            padding: 8px 16px !important;
+            font-size: 12px !important;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-row button {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>📚 Lấy dữ liệu Lý Thuyết Online</h3>
+    <button id="scanBtn">🔍 Quét Dữ Liệu</button>
+    <div id="status"></div>
+
+    <div id="savedDataSection" style="display: none;">
+        <div class="saved-info" id="savedInfo"></div>
+        <button id="copyBtn" class="copy-btn">📋 Copy Kết Quả</button>
+        <button id="clearBtn" class="clear-btn">🗑️ Xóa</button>
+    </div>
+
+    <div class="note">
+        Extension sẽ tự động mở từng môn học<br>
+        để lấy số giờ chính xác
+    </div>
+    <script src="popup.js"></script>
+</body>
+
+</html>
