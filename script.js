@@ -9,19 +9,10 @@ const DEFAULT_COURSES_GENERAL = [
     'Mô phỏng các tình huống giao thông'
 ];
 
-const DEFAULT_COURSES_VITHANH = [
-    { name: 'Đạo đức người lái xe, văn hóa giao thông và kỹ năng PCCC và cứu nạn, cứu hộ', hours: 20 },
-    { name: 'Kỹ thuật lái xe ô tô', hours: 20 },
-    { name: 'Cấu tạo sửa chữa', hours: 18 },
-    { name: 'Phần 1. Những nội dung cơ bản của luật trật tự, an toàn giao thông đường bộ', hours: 25 },
-    { name: 'Phần 2. Hệ thống báo hiệu đường bộ', hours: 40 },
-    { name: 'Phần 3. Xử lý các tình huống giao thông', hours: 25 },
-    { name: 'Mô phỏng các tình huống giao thông', hours: 4 }
-];
+
 
 // Course data storage
 let coursesDataGeneral = [];
-let coursesDataViThanh = [];
 let coursesDataCustom = []; // New dynamic data
 let currentTab = 'general';
 
@@ -39,7 +30,6 @@ function initializeApp() {
 
     // Render courses table
     renderCoursesTable('general');
-    renderCoursesTable('vithanh');
     renderCoursesTable('custom');
 
     // Add event listeners
@@ -47,7 +37,6 @@ function initializeApp() {
 
     // Calculate initial results
     calculateResults('general');
-    calculateResults('vithanh');
     calculateResults('custom');
 
     // Initialize parallax effect
@@ -66,14 +55,7 @@ function initializeCourses() {
         coursesDataGeneral = createDefaultCourses('general');
     }
 
-    // Load Vi Thanh courses
-    const savedDataViThanh = localStorage.getItem('coursesDataViThanh');
-    if (savedDataViThanh) {
-        try { coursesDataViThanh = JSON.parse(savedDataViThanh); }
-        catch (e) { coursesDataViThanh = createDefaultCourses('vithanh'); }
-    } else {
-        coursesDataViThanh = createDefaultCourses('vithanh');
-    }
+
 
     // Load Custom courses
     const savedDataCustom = localStorage.getItem('coursesDataCustom');
@@ -90,12 +72,6 @@ function createDefaultCourses(tab) {
         return DEFAULT_COURSES_GENERAL.map(name => ({
             name: name,
             totalHours: 0,
-            completedHours: 0
-        }));
-    } else if (tab === 'vithanh') {
-        return DEFAULT_COURSES_VITHANH.map(course => ({
-            name: course.name,
-            totalHours: course.hours,
             completedHours: 0
         }));
     }
@@ -142,9 +118,6 @@ function renderCoursesTable(tab) {
     if (tab === 'general') {
         suffix = '';
         coursesData = coursesDataGeneral;
-    } else if (tab === 'vithanh') {
-        suffix = 'VT';
-        coursesData = coursesDataViThanh;
     } else {
         suffix = 'Custom';
         coursesData = coursesDataCustom;
@@ -222,7 +195,6 @@ function handleTotalHoursChange(e) {
     const value = parseFloat(e.target.value) || 0;
 
     if (tab === 'general') coursesDataGeneral[index].totalHours = value;
-    else if (tab === 'vithanh') coursesDataViThanh[index].totalHours = value;
     else coursesDataCustom[index].totalHours = value;
 
     updateRowProgress(index, tab);
@@ -235,7 +207,6 @@ function handleCompletedHoursChange(e) {
     const value = parseFloat(e.target.value) || 0;
 
     if (tab === 'general') coursesDataGeneral[index].completedHours = value;
-    else if (tab === 'vithanh') coursesDataViThanh[index].completedHours = value;
     else coursesDataCustom[index].completedHours = value;
 
     updateRowProgress(index, tab);
@@ -246,7 +217,6 @@ function updateRowProgress(index, tab) {
     let suffix = '';
     let coursesData = [];
     if (tab === 'general') { suffix = ''; coursesData = coursesDataGeneral; }
-    else if (tab === 'vithanh') { suffix = 'VT'; coursesData = coursesDataViThanh; }
     else { suffix = 'Custom'; coursesData = coursesDataCustom; }
 
     const course = coursesData[index];
@@ -273,7 +243,6 @@ function calculateResults(tab) {
     let defaultPercent = 0.7;
 
     if (tab === 'general') { suffix = ''; coursesData = coursesDataGeneral; defaultPercent = 0.7; }
-    else if (tab === 'vithanh') { suffix = 'VT'; coursesData = coursesDataViThanh; defaultPercent = 0.85; }
     else { suffix = 'Custom'; coursesData = coursesDataCustom; defaultPercent = 1.0; }
 
     const percentInput = document.getElementById(`percentInput${suffix}`);
@@ -339,8 +308,7 @@ function getDayOfWeek(date) {
 
 function updateResults(days, hours, progress, completionInfo, tab) {
     let suffix = '';
-    if (tab === 'vithanh') suffix = 'VT';
-    else if (tab === 'custom') suffix = 'Custom';
+    if (tab === 'custom') suffix = 'Custom';
 
     const hoursElement = document.getElementById(`hoursRemaining${suffix}`);
     const progressElement = document.getElementById(`overallProgress${suffix}`);
@@ -371,7 +339,6 @@ function animateValue(element, start, end, duration) {
 
 function setupEventListeners() {
     setupTabEventListeners('general', '');
-    setupTabEventListeners('vithanh', 'VT');
     setupTabEventListeners('custom', 'Custom');
     loadSettings();
 }
@@ -425,9 +392,9 @@ function handleImportData(importedData, tab) {
         return;
     }
 
-    // Existing Logic for General/ViThanh (Match by Name)
+    // Existing Logic for General (Match by Name)
     let matchCount = 0;
-    const coursesData = tab === 'general' ? coursesDataGeneral : coursesDataViThanh;
+    const coursesData = coursesDataGeneral;
     const importMap = new Map();
     importedData.forEach(item => { if (item.name) importMap.set(item.name.toLowerCase().trim(), item); });
 
@@ -467,12 +434,11 @@ function handleReset(tab) {
 
     let suffix = '';
     if (tab === 'general') { coursesDataGeneral = createDefaultCourses('general'); suffix = ''; }
-    else if (tab === 'vithanh') { coursesDataViThanh = createDefaultCourses('vithanh'); suffix = 'VT'; }
     else { coursesDataCustom = []; suffix = 'Custom'; }
 
     // Reset inputs
     const pInput = document.getElementById(`percentInput${suffix}`);
-    if (pInput) pInput.value = tab === 'custom' ? 1.0 : (tab === 'general' ? 0.7 : 0.85);
+    if (pInput) pInput.value = tab === 'custom' ? 1.0 : 0.7;
     const hInput = document.getElementById(`hoursPerDayInput${suffix}`);
     if (hInput) hInput.value = 8;
     const htInput = document.getElementById(`hoursTodayInput${suffix}`);
@@ -487,7 +453,6 @@ function handleReset(tab) {
 
 function saveData(tab) {
     if (tab === 'general') localStorage.setItem('coursesDataGeneral', JSON.stringify(coursesDataGeneral));
-    else if (tab === 'vithanh') localStorage.setItem('coursesDataViThanh', JSON.stringify(coursesDataViThanh));
     else localStorage.setItem('coursesDataCustom', JSON.stringify(coursesDataCustom));
 }
 
@@ -495,7 +460,6 @@ function saveSettings() {
     const getVal = (id) => document.getElementById(id)?.value;
     const s = {
         general: { percent: getVal('percentInput'), hoursPerDay: getVal('hoursPerDayInput'), hoursToday: getVal('hoursTodayInput') },
-        vithanh: { percent: getVal('percentInputVT'), hoursPerDay: getVal('hoursPerDayInputVT'), hoursToday: getVal('hoursTodayInputVT') },
         custom: { percent: getVal('percentInputCustom'), hoursPerDay: getVal('hoursPerDayInputCustom'), hoursToday: getVal('hoursTodayInputCustom') }
     };
     localStorage.setItem('settings', JSON.stringify(s));
@@ -506,7 +470,6 @@ function loadSettings() {
     const setVal = (id, val, def) => { const el = document.getElementById(id); if (el) el.value = val || def; };
 
     if (s.general) { setVal('percentInput', s.general.percent, 0.7); setVal('hoursPerDayInput', s.general.hoursPerDay, 8); setVal('hoursTodayInput', s.general.hoursToday, 0); }
-    if (s.vithanh) { setVal('percentInputVT', s.vithanh.percent, 0.85); setVal('hoursPerDayInputVT', s.vithanh.hoursPerDay, 8); setVal('hoursTodayInputVT', s.vithanh.hoursToday, 0); }
     if (s.custom) { setVal('percentInputCustom', s.custom.percent, 1.0); setVal('hoursPerDayInputCustom', s.custom.hoursPerDay, 8); setVal('hoursTodayInputCustom', s.custom.hoursToday, 0); }
 }
 
@@ -529,4 +492,4 @@ function showNotification(msg, type = 'info') {
     setTimeout(() => { n.remove(); }, 3000);
 }
 
-window.addEventListener('beforeunload', () => { saveData('general'); saveData('vithanh'); saveData('custom'); saveSettings(); });
+window.addEventListener('beforeunload', () => { saveData('general'); saveData('custom'); saveSettings(); });
