@@ -361,14 +361,55 @@ function setupTabEventListeners(tab, suffix) {
                 const text = await navigator.clipboard.readText();
                 if (!text) return showNotification('Không có dữ liệu trong bộ nhớ tạm!', 'error');
                 const data = JSON.parse(text);
-                if (Array.isArray(data)) handleImportData(data, tab);
-                else showNotification('Dữ liệu không đúng định dạng JSON!', 'error');
+
+                // Xử lý cấu trúc dữ liệu mới từ Extension V2
+                if (data.courses && Array.isArray(data.courses)) {
+                    // Cấu trúc mới: { courses: [...], maxHoursPerDay, learnedHoursToday }
+                    handleImportData(data.courses, tab);
+
+                    // Tự động điền số giờ học/ngày và số giờ đã học hôm nay
+                    if (data.maxHoursPerDay !== null && data.maxHoursPerDay !== undefined) {
+                        const hoursPerDayInput = document.getElementById(`hoursPerDayInput${suffix}`);
+                        if (hoursPerDayInput) {
+                            hoursPerDayInput.value = data.maxHoursPerDay;
+                        }
+                    }
+                    if (data.learnedHoursToday !== null && data.learnedHoursToday !== undefined) {
+                        const hoursTodayInput = document.getElementById(`hoursTodayInput${suffix}`);
+                        if (hoursTodayInput) {
+                            hoursTodayInput.value = data.learnedHoursToday;
+                        }
+                    }
+
+                    // Tính toán lại với giá trị mới
+                    calculateResults(tab);
+                    saveSettings();
+                } else if (Array.isArray(data)) {
+                    // Cấu trúc cũ: mảng trực tiếp
+                    handleImportData(data, tab);
+                } else {
+                    showNotification('Dữ liệu không đúng định dạng!', 'error');
+                }
             } catch (err) {
                 const input = prompt('Dán dữ liệu JSON vào đây:');
                 if (input) {
                     try {
                         const data = JSON.parse(input);
-                        if (Array.isArray(data)) handleImportData(data, tab);
+                        if (data.courses && Array.isArray(data.courses)) {
+                            handleImportData(data.courses, tab);
+                            if (data.maxHoursPerDay !== null) {
+                                const hoursPerDayInput = document.getElementById(`hoursPerDayInput${suffix}`);
+                                if (hoursPerDayInput) hoursPerDayInput.value = data.maxHoursPerDay;
+                            }
+                            if (data.learnedHoursToday !== null) {
+                                const hoursTodayInput = document.getElementById(`hoursTodayInput${suffix}`);
+                                if (hoursTodayInput) hoursTodayInput.value = data.learnedHoursToday;
+                            }
+                            calculateResults(tab);
+                            saveSettings();
+                        } else if (Array.isArray(data)) {
+                            handleImportData(data, tab);
+                        }
                     } catch (e) { showNotification('Lỗi JSON!', 'error'); }
                 }
             }
