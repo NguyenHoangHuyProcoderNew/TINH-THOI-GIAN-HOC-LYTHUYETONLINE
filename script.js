@@ -14,7 +14,7 @@ const DEFAULT_COURSES_GENERAL = [
 // Course data storage
 let coursesDataGeneral = [];
 let coursesDataCustom = []; // New dynamic data
-let currentTab = 'general';
+let currentTab = 'custom';
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -243,7 +243,7 @@ function calculateResults(tab) {
     let defaultPercent = 0.7;
 
     if (tab === 'general') { suffix = ''; coursesData = coursesDataGeneral; defaultPercent = 0.7; }
-    else { suffix = 'Custom'; coursesData = coursesDataCustom; defaultPercent = 1.0; }
+    else { suffix = 'Custom'; coursesData = coursesDataCustom; defaultPercent = 0.7; }
 
     const percentInput = document.getElementById(`percentInput${suffix}`);
     const hoursPerDayInput = document.getElementById(`hoursPerDayInput${suffix}`);
@@ -269,10 +269,14 @@ function calculateResults(tab) {
 
     remainingHours = Math.max(0, remainingHours);
 
-    const completionInfo = calculateCompletionDate(remainingHours, hoursPerDay, hoursToday);
+    // Tính số giờ còn lại đã điều chỉnh (trừ số giờ đã học hôm nay)
+    // Vì hoursToday có thể chưa được cập nhật vào completedHours của các môn
+    const adjustedRemainingHours = Math.max(0, remainingHours - hoursToday);
+
+    const completionInfo = calculateCompletionDate(adjustedRemainingHours, hoursPerDay, hoursToday);
     const overallProgress = totalRequired > 0 ? Math.min(100, (totalCompleted / totalRequired) * 100) : 0;
 
-    updateResults(completionInfo.daysRemaining, remainingHours, overallProgress, completionInfo, tab);
+    updateResults(completionInfo.daysRemaining, adjustedRemainingHours, overallProgress, completionInfo, tab);
 }
 
 function calculateCompletionDate(remainingHours, hoursPerDay, hoursToday) {
@@ -365,9 +369,9 @@ function setupTabEventListeners(tab, suffix) {
                 // Xử lý cấu trúc dữ liệu mới từ Extension V2
                 if (data.courses && Array.isArray(data.courses)) {
                     // Cấu trúc mới: { courses: [...], maxHoursPerDay, learnedHoursToday }
-                    handleImportData(data.courses, tab);
-
-                    // Tự động điền số giờ học/ngày và số giờ đã học hôm nay
+                    
+                    // ĐẶT GIÁ TRỊ INPUT TRƯỚC KHI GỌI handleImportData
+                    // để calculateResults sử dụng giá trị đúng
                     if (data.maxHoursPerDay !== null && data.maxHoursPerDay !== undefined) {
                         const hoursPerDayInput = document.getElementById(`hoursPerDayInput${suffix}`);
                         if (hoursPerDayInput) {
@@ -381,8 +385,10 @@ function setupTabEventListeners(tab, suffix) {
                         }
                     }
 
-                    // Tính toán lại với giá trị mới
-                    calculateResults(tab);
+                    // Gọi handleImportData SAU khi đã set giá trị input
+                    handleImportData(data.courses, tab);
+
+                    // Lưu settings (handleImportData đã gọi calculateResults)
                     saveSettings();
                 } else if (Array.isArray(data)) {
                     // Cấu trúc cũ: mảng trực tiếp
@@ -396,16 +402,17 @@ function setupTabEventListeners(tab, suffix) {
                     try {
                         const data = JSON.parse(input);
                         if (data.courses && Array.isArray(data.courses)) {
-                            handleImportData(data.courses, tab);
-                            if (data.maxHoursPerDay !== null) {
+                            // ĐẶT GIÁ TRỊ INPUT TRƯỚC
+                            if (data.maxHoursPerDay !== null && data.maxHoursPerDay !== undefined) {
                                 const hoursPerDayInput = document.getElementById(`hoursPerDayInput${suffix}`);
                                 if (hoursPerDayInput) hoursPerDayInput.value = data.maxHoursPerDay;
                             }
-                            if (data.learnedHoursToday !== null) {
+                            if (data.learnedHoursToday !== null && data.learnedHoursToday !== undefined) {
                                 const hoursTodayInput = document.getElementById(`hoursTodayInput${suffix}`);
                                 if (hoursTodayInput) hoursTodayInput.value = data.learnedHoursToday;
                             }
-                            calculateResults(tab);
+                            // Gọi handleImportData SAU
+                            handleImportData(data.courses, tab);
                             saveSettings();
                         } else if (Array.isArray(data)) {
                             handleImportData(data, tab);
@@ -479,7 +486,7 @@ function handleReset(tab) {
 
     // Reset inputs
     const pInput = document.getElementById(`percentInput${suffix}`);
-    if (pInput) pInput.value = tab === 'custom' ? 1.0 : 0.7;
+    if (pInput) pInput.value = 0.7;
     const hInput = document.getElementById(`hoursPerDayInput${suffix}`);
     if (hInput) hInput.value = 8;
     const htInput = document.getElementById(`hoursTodayInput${suffix}`);
@@ -511,7 +518,7 @@ function loadSettings() {
     const setVal = (id, val, def) => { const el = document.getElementById(id); if (el) el.value = val || def; };
 
     if (s.general) { setVal('percentInput', s.general.percent, 0.7); setVal('hoursPerDayInput', s.general.hoursPerDay, 8); setVal('hoursTodayInput', s.general.hoursToday, 0); }
-    if (s.custom) { setVal('percentInputCustom', s.custom.percent, 1.0); setVal('hoursPerDayInputCustom', s.custom.hoursPerDay, 8); setVal('hoursTodayInputCustom', s.custom.hoursToday, 0); }
+    if (s.custom) { setVal('percentInputCustom', s.custom.percent, 0.7); setVal('hoursPerDayInputCustom', s.custom.hoursPerDay, 8); setVal('hoursTodayInputCustom', s.custom.hoursToday, 0); }
 }
 
 function initializeParallax() {

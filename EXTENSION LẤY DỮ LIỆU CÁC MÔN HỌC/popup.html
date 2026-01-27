@@ -92,6 +92,69 @@
         .btn-row button {
             flex: 1;
         }
+
+        /* === LOG CONTAINER === */
+        #logSection {
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .log-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .copy-log-btn {
+            background: #555 !important;
+            padding: 4px 10px !important;
+            font-size: 10px !important;
+            width: auto !important;
+        }
+
+        #logContainer {
+            background: #1e1e1e;
+            color: #ddd;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            height: 120px;
+            overflow-y: auto;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            margin-bottom: 2px;
+        }
+
+        .log-time {
+            color: #888;
+        }
+
+        .log-info {
+            color: #4fc3f7;
+        }
+
+        .log-success {
+            color: #81c784;
+        }
+
+        .log-error {
+            color: #e57373;
+        }
+
+        .log-warn {
+            color: #ffb74d;
+        }
     </style>
 </head>
 
@@ -104,6 +167,15 @@
         <div class="saved-info" id="savedInfo"></div>
         <button id="copyBtn" class="copy-btn">📋 Copy Kết Quả</button>
         <button id="clearBtn" class="clear-btn">🗑️ Xóa</button>
+    </div>
+
+    <!-- Log Section -->
+    <div id="logSection">
+        <div class="log-header">
+            <span class="log-title">📋 Log</span>
+            <button id="copyLogBtn" class="copy-log-btn">Copy Log</button>
+        </div>
+        <div id="logContainer"></div>
     </div>
 
     <div class="note">
